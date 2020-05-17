@@ -32,7 +32,7 @@ public class Board {
         int gemsInHand = getMyChildHoles(player).get(index).popAll();
         String side = player;
         while (true) {
-            System.out.println(player + " " + side + " " + (index + 1) + " " + gemsInHand + " " + (totalGem() + gemsInHand));
+//            System.out.println(player + " " + side + " " + (index + 1) + " " + gemsInHand + " " + (totalGem() + gemsInHand));
             Status status = playGems(player, side, index + 1, gemsInHand);
             if (status.isEndTurn()) {
                 ScoreStatus scoreStatus = new ScoreStatus();
@@ -51,6 +51,7 @@ public class Board {
                 ScoreStatus scoreStatus = new ScoreStatus();
                 scoreStatus.setChance(true);
                 scoreStatus.setScore(getMyMotherHole(player).getGemsCount());
+//                printBoard();
                 return scoreStatus;
             }
             if (status.isGameContinue()) {
@@ -66,7 +67,7 @@ public class Board {
     public static class ScoreStatus{
         int score;
         boolean chance;
-        boolean isValid = false;
+        boolean isValid = true;
         public int getScore() {
             return score;
         }
@@ -423,15 +424,19 @@ public class Board {
         int holeCount = board.getChildHoleCountPerSide(player);
         int maxScore = 0;
         int index = 0;
+        ArrayList<Integer> bestHoleOrder = null;
         for (int i = 0; i < holeCount; i++) {
             Board boardCopy = gson.fromJson(gson.toJson(board), Board.class);
             ScoreStatus scoreStatus = boardCopy.findScoreForThisStep(player,i);
+            ArrayList<Integer> copyArr = new ArrayList<>();
+            copyArr.addAll(holeOrder);
+            copyArr.add(i);
             int score;
             if(!scoreStatus.isValid){
                 continue;
             }
             else if(scoreStatus.isChance()){
-                score = bestScoreRecursive(board, player, holeOrder);
+                score = bestScoreRecursive(boardCopy, player, copyArr);
             }
             else{
                 score = scoreStatus.getScore();
@@ -439,9 +444,16 @@ public class Board {
             if(maxScore < score) {
                 index = i;
                 maxScore = score;
+                bestHoleOrder = copyArr;
+                if(maxScore > 93) {
+                    System.out.println("max: " + maxScore + "arr : " + bestHoleOrder);
+                }
             }
         }
-        holeOrder.add(0,index);
+        if(bestHoleOrder != null){
+            holeOrder.clear();
+            holeOrder.addAll(bestHoleOrder);
+        }
         return maxScore;
     }
 }
