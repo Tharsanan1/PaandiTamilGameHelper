@@ -8,6 +8,7 @@ public class Board {
     private static int childHoleCountPerSideB = 7;
     public static String PLAYER_A = "PLAYER_A";
     public static String PLAYER_B = "PLAYER_B";
+    private static int toAchive = 10;
 
     private MotherHole playerAMotherHole;
     private MotherHole playerBMotherHole;
@@ -21,6 +22,41 @@ public class Board {
         addChildHoles(playerBChildHoles);
         playerAMotherHole = new MotherHole();
         playerBMotherHole = new MotherHole();
+    }
+
+    public static int getToAchive() {
+        return toAchive;
+    }
+
+    public static void setToAchive(int toAchive) {
+        Board.toAchive = toAchive;
+    }
+
+    public Board(int[] arrA, int[] arrB){
+        setChildHoleCountPerSideA(arrA.length);
+        setChildHoleCountPerSideB(arrB.length);
+        playerAChildHoles = new ArrayList<>();
+        playerBChildHoles = new ArrayList<>();
+        addChildHoles(playerAChildHoles, arrA);
+        addChildHoles(playerBChildHoles, arrB);
+        playerAMotherHole = new MotherHole();
+        playerBMotherHole = new MotherHole();
+    }
+
+    public static int getChildHoleCountPerSideA() {
+        return childHoleCountPerSideA;
+    }
+
+    public static void setChildHoleCountPerSideA(int childHoleCountPerSideA) {
+        Board.childHoleCountPerSideA = childHoleCountPerSideA;
+    }
+
+    public static int getChildHoleCountPerSideB() {
+        return childHoleCountPerSideB;
+    }
+
+    public static void setChildHoleCountPerSideB(int childHoleCountPerSideB) {
+        Board.childHoleCountPerSideB = childHoleCountPerSideB;
     }
 
     public ScoreStatus findScoreForThisStep(String player, int index) throws InvalidArgumentException, UnhandledLogicException {
@@ -349,6 +385,13 @@ public class Board {
         }
     }
 
+    private void addChildHoles(ArrayList<ChildHole> childHoles, int[] arr){
+        int length = arr.length;
+        for (int i = 0; i < length; i++) {
+            childHoles.add(new ChildHole(arr[i]));
+        }
+    }
+
     public void printBoard() throws InvalidArgumentException {
         for (int i = 0; i < Math.max(childHoleCountPerSideA, childHoleCountPerSideB) + 4; i++) {
             System.out.print("= ");
@@ -445,7 +488,7 @@ public class Board {
                 index = i;
                 maxScore = score;
                 bestHoleOrder = copyArr;
-                if(maxScore > 93) {
+                if(maxScore > toAchive) {
                     System.out.println("max: " + maxScore + "arr : " + bestHoleOrder);
                 }
             }
