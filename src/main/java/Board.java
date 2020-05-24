@@ -1,19 +1,26 @@
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class Board {
+    public   static String LEFT_HOLE_CLOSE = "LEFT_HOLE_CLOSE";
+    public static String RIGHT_HOLE_CLOSE = "RIGHT_HOLE_CLOSE";
     private static int childHoleCountPerSideA = 7;
     private static int childHoleCountPerSideB = 7;
     public static String PLAYER_A = "PLAYER_A";
     public static String PLAYER_B = "PLAYER_B";
     private static int toAchive = 10;
-
+    private static int processingMaxTimeInSeconds = 20;
+    private static Date startTime = new Date();
+    private static HashMap<Integer, ArrayList<Integer>> bestScoreWithLessChoicesMap = new HashMap<>();
     private MotherHole playerAMotherHole;
     private MotherHole playerBMotherHole;
     private ArrayList<ChildHole> playerAChildHoles;
     private ArrayList<ChildHole> playerBChildHoles;
+    private static String strategy = RIGHT_HOLE_CLOSE;
 
     public Board() {
         playerAChildHoles = new ArrayList<>();
@@ -22,14 +29,6 @@ public class Board {
         addChildHoles(playerBChildHoles);
         playerAMotherHole = new MotherHole();
         playerBMotherHole = new MotherHole();
-    }
-
-    public static int getToAchive() {
-        return toAchive;
-    }
-
-    public static void setToAchive(int toAchive) {
-        Board.toAchive = toAchive;
     }
 
     public Board(int[] arrA, int[] arrB){
@@ -42,6 +41,52 @@ public class Board {
         playerAMotherHole = new MotherHole();
         playerBMotherHole = new MotherHole();
     }
+
+    public static void setStrategy(String strategy) {
+        Board.strategy = strategy;
+    }
+
+    public static HashMap<Integer, ArrayList<Integer>> getBestScoreWithLessChoicesMap() {
+        return bestScoreWithLessChoicesMap;
+    }
+
+    public static void clean(){
+        bestScoreWithLessChoicesMap = new HashMap<>();
+    }
+
+    public static String getPlayerA() {
+        return PLAYER_A;
+    }
+
+    public static void setPlayerA(String playerA) {
+        PLAYER_A = playerA;
+    }
+
+    public static int getProcessingMaxTimeInSeconds() {
+        return processingMaxTimeInSeconds;
+    }
+
+    public static void setProcessingMaxTimeInSeconds(int processingMaxTimeInSeconds) {
+        Board.processingMaxTimeInSeconds = processingMaxTimeInSeconds;
+    }
+
+    public static Date getStartTime() {
+        return startTime;
+    }
+
+    public static void setStartTime(Date startTime) {
+        Board.startTime = startTime;
+    }
+
+    public static int getToAchive() {
+        return toAchive;
+    }
+
+    public static void setToAchive(int toAchive) {
+        Board.toAchive = toAchive;
+    }
+
+
 
     public static int getChildHoleCountPerSideA() {
         return childHoleCountPerSideA;
@@ -222,7 +267,7 @@ public class Board {
             if (getMyChildHoles(side).get(prevIndex).getGemsCount() == 1) {
                 String oppositeSide = getOppositeSide(side);
                 int oppositeIndex = getOppositeIndex(prevIndex, oppositeSide);
-                if (getMyChildHoles(oppositeSide).get(oppositeIndex).getGemsCount() > 0) {
+                if (oppositeIndex != -1 && getMyChildHoles(oppositeSide).get(oppositeIndex).getGemsCount() > 0) {
                     int gemsFromOppsiteSide = getMyChildHoles(oppositeSide).get(oppositeIndex).popAll();
                     int gemsFromOurSide = getMyChildHoles(side).get(prevIndex).popAll();
                     Status status = new Status(side, prevIndex);
@@ -272,10 +317,19 @@ public class Board {
     }
 
     private int getOppositeIndex(int index, String side) throws InvalidArgumentException {
-        if (index > getChildHoleCountPerSide(side) - 1) {
-            return -1;
-        } else {
-            return getChildHoleCountPerSide(side) - 1 - index;
+        if(strategy.equals(RIGHT_HOLE_CLOSE)) {
+            if (index > getChildHoleCountPerSide(side) - 1) {
+                return -1;
+            } else {
+                return getChildHoleCountPerSide(side) - 1 - index;
+            }
+        }
+        else{
+            if (index > getChildHoleCountPerSide(side) - 1) {
+                return -1;
+            } else {
+                return getChildHoleCountPerSide(getOppositeSide(side)) - 1 - index;
+            }
         }
     }
 
@@ -479,7 +533,14 @@ public class Board {
                 continue;
             }
             else if(scoreStatus.isChance()){
-                score = bestScoreRecursive(boardCopy, player, copyArr);
+                Date currentTime = new Date();
+                int timeDiffInSeconds = (int) ((currentTime.getTime() - startTime.getTime())/1000);
+                if(timeDiffInSeconds < processingMaxTimeInSeconds) {
+                    score = bestScoreRecursive(boardCopy, player, copyArr);
+                }
+                else{
+                    score = scoreStatus.getScore();
+                }
             }
             else{
                 score = scoreStatus.getScore();
@@ -488,9 +549,17 @@ public class Board {
                 index = i;
                 maxScore = score;
                 bestHoleOrder = copyArr;
-                if(maxScore > toAchive) {
-                    System.out.println("max: " + maxScore + "arr : " + bestHoleOrder);
+                if(bestScoreWithLessChoicesMap.containsKey(maxScore)) {
+                    if (bestScoreWithLessChoicesMap.get(maxScore).size() < bestHoleOrder.size()) {
+                        bestScoreWithLessChoicesMap.put(maxScore, bestHoleOrder);
+                    }
                 }
+                else{
+                    bestScoreWithLessChoicesMap.put(maxScore, bestHoleOrder);
+                }
+//                if(maxScore > toAchive) {
+//                    System.out.println("max: " + maxScore + "arr : " + bestHoleOrder);
+//                }
             }
         }
         if(bestHoleOrder != null){
