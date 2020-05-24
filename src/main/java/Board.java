@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 public class Board {
+    public   static String LEFT_HOLE_CLOSE = "LEFT_HOLE_CLOSE";
+    public static String RIGHT_HOLE_CLOSE = "RIGHT_HOLE_CLOSE";
     private static int childHoleCountPerSideA = 7;
     private static int childHoleCountPerSideB = 7;
     public static String PLAYER_A = "PLAYER_A";
@@ -18,6 +20,7 @@ public class Board {
     private MotherHole playerBMotherHole;
     private ArrayList<ChildHole> playerAChildHoles;
     private ArrayList<ChildHole> playerBChildHoles;
+    private static String strategy = RIGHT_HOLE_CLOSE;
 
     public Board() {
         playerAChildHoles = new ArrayList<>();
@@ -37,6 +40,10 @@ public class Board {
         addChildHoles(playerBChildHoles, arrB);
         playerAMotherHole = new MotherHole();
         playerBMotherHole = new MotherHole();
+    }
+
+    public static void setStrategy(String strategy) {
+        Board.strategy = strategy;
     }
 
     public static HashMap<Integer, ArrayList<Integer>> getBestScoreWithLessChoicesMap() {
@@ -260,7 +267,7 @@ public class Board {
             if (getMyChildHoles(side).get(prevIndex).getGemsCount() == 1) {
                 String oppositeSide = getOppositeSide(side);
                 int oppositeIndex = getOppositeIndex(prevIndex, oppositeSide);
-                if (getMyChildHoles(oppositeSide).get(oppositeIndex).getGemsCount() > 0) {
+                if (oppositeIndex != -1 && getMyChildHoles(oppositeSide).get(oppositeIndex).getGemsCount() > 0) {
                     int gemsFromOppsiteSide = getMyChildHoles(oppositeSide).get(oppositeIndex).popAll();
                     int gemsFromOurSide = getMyChildHoles(side).get(prevIndex).popAll();
                     Status status = new Status(side, prevIndex);
@@ -310,10 +317,19 @@ public class Board {
     }
 
     private int getOppositeIndex(int index, String side) throws InvalidArgumentException {
-        if (index > getChildHoleCountPerSide(side) - 1) {
-            return -1;
-        } else {
-            return getChildHoleCountPerSide(side) - 1 - index;
+        if(strategy.equals(RIGHT_HOLE_CLOSE)) {
+            if (index > getChildHoleCountPerSide(side) - 1) {
+                return -1;
+            } else {
+                return getChildHoleCountPerSide(side) - 1 - index;
+            }
+        }
+        else{
+            if (index > getChildHoleCountPerSide(side) - 1) {
+                return -1;
+            } else {
+                return getChildHoleCountPerSide(getOppositeSide(side)) - 1 - index;
+            }
         }
     }
 

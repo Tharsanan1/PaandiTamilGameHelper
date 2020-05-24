@@ -10,7 +10,7 @@ public class PaandiHelper {
     private static String PLAYER_A_VALUES = "PLAYER_A_VALUES";
     private static String PLAYER_B_VALUES = "PLAYER_B_VALUES";
     private static String PROCESSING_TIME = "PROCESSING_TIME";
-
+    private static String STRATEGY = "STRATEGY";
 
     public static void main(String[] args) throws UnhandledLogicException, InvalidArgumentException {
 
@@ -29,7 +29,15 @@ public class PaandiHelper {
         }
 
         int processingTime = argumentObject.getInt(PROCESSING_TIME);
+        int strategy = argumentObject.getInt(STRATEGY);
 
+        if(strategy == 0) {
+            Board.setStrategy(Board.RIGHT_HOLE_CLOSE);
+        }
+        else if(strategy == 1){
+            Board.setStrategy(Board.LEFT_HOLE_CLOSE);
+        }
+//        Board.setStrategy(Board.LEFT_HOLE_CLOSE);
 
         Board board = new Board(aArr, bArr);
 //        board.playGame(Board.PLAYER_A,0);
