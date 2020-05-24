@@ -2,7 +2,7 @@
  To run the program you can use the follwing commands in the terminal. 
  
  1) mvn package
- 2) java -jar /home/tharsanan/Projects/PaandiTamilGameHelper/target/PaandiTamilGameMaven-1.0-SNAPSHOT-jar-with-dependencies.jar "{PLAYER_A_VALUES:[7,7,7,7,7,7,7],PLAYER_B_VALUES:[7,7,7,7,7,7,7],PROCESSING_TIME:10,STRATEGY:0}"
+ 2) java -jar target/PaandiTamilGameMaven-1.0-SNAPSHOT-jar-with-dependencies.jar "{PLAYER_A_VALUES:[7,7,7,7,7,7,7],PLAYER_B_VALUES:[7,7,7,7,7,7,7],PROCESSING_TIME:10,STRATEGY:0}"
  
  Here PLAYER_A_VALUES are your side gems and PLAYER_B_VALUES are your opponent side gems order.
  
