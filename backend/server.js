@@ -10,6 +10,7 @@ app.use(bodyParser.json());
 
 app.post('/scores', (req, res) => {
   let payload = JSON.stringify(req.body);
+  console.log(payload);
   child = exec('java -jar /home/tharsanan/Projects/PaandiTamilGameHelper/target/PaandiTamilGameMaven-1.0-SNAPSHOT-jar-with-dependencies.jar ' + payload,
   function (error, stdout, stderr){
     let jsonObj = JSON.parse(stdout);
@@ -23,5 +24,7 @@ app.post('/scores', (req, res) => {
   });
 
 });
+
+app.use(express.static('public'));
 
 app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`));

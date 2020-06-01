@@ -1,5 +1,5 @@
 target
 .idea
 PaandiTamilGameMaven.iml
-
-
+backend/node_modules
+backend/public/bundle.js
